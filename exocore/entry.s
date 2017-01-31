@@ -1,3 +1,5 @@
+# This file came from the OSDev community, and therefore I claim absolutely no ownership of it, regardless of modifications. --
+
 ; Declare constants for the multiboot header.
 MBALIGN  equ  1<<0              ; align loaded modules on page boundaries
 MEMINFO  equ  1<<1              ; provide memory map
@@ -64,6 +66,10 @@ _start:
 	; C++ features such as global constructors and exceptions will require
 	; runtime support to work as well.
  
+	; Custom stuff:
+	extern enter_long_mode
+	call enter_long_mode
+
 	; Enter the high-level kernel. The ABI requires the stack is 16-byte
 	; aligned at the time of the call instruction (which afterwards pushes
 	; the return pointer of size 4 bytes). The stack was originally 16-byte

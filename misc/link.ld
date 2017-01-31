@@ -1,3 +1,5 @@
+/* This file came from the OSDev community, and therefore I claim absolutely no ownership of it. -- */
+
 /* The bootloader will look at this image and start execution at the symbol
    designated as the entry point. */
 ENTRY(_start)

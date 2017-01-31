@@ -1,22 +1,22 @@
 PROJDIRS := exocore
 
 export AS       := nasm
-export ASFLAGS  := -felf32
+export ASFLAGS  := -felf64
 
 export CC       := clang
 export WARNINGS := -Wall -Wextra -pedantic -Wshadow -Wpointer-arith -Wcast-align \
             -Wwrite-strings -Wmissing-prototypes -Wmissing-declarations \
             -Wredundant-decls -Wnested-externs -Winline -Wno-long-long \
             -Wuninitialized -Wconversion -Wstrict-prototypes -Werror
-export CFLAGS   := -m32 -ffreestanding -nostdlib -O2  $(WARNINGS)
-export LDFLAGS  := -melf_i386
+export CFLAGS   := -m64 -ffreestanding -nostdlib -O2  $(WARNINGS)
+export LDFLAGS  := -melf_x86_64
 
 # ------------
 
 .PHONY: all clean kimage
 
 SUBDIRS   = $(addsuffix _submake, $(PROJDIRS))
-all: $(SUBDIRS) kimage
+all: clean $(SUBDIRS) kimage
 
 %_submake: %
 	@cd $<; $(MAKE)
@@ -34,6 +34,9 @@ clean: $(CLEANDIRS)
 
 %_subclean: %
 	@cd $<; $(MAKE) clean
+
+run: all
+	@qemu-system-x86_64 -kernel kimage
 
 todolist:
 	-@for file in $(ALLFILES:Makefile=); do fgrep -H -e TODO -e FIXME $$file; done; true
