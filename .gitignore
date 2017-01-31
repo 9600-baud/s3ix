@@ -5,3 +5,5 @@
 *.o
 *.ko
 kimage
+d.img
+

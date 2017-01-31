@@ -1,8 +1,11 @@
 // internal prototypes:
-int _kmain(void);
+void _kmain(void);
 
-int _kmain(void) {
+void _kmain(void) {
 
-	for(;;);
+  //char *video = (char *)0xB8000;
+  //*video = 'A'; video++;
+  //*video = 7;
+
+  return;
 }
-

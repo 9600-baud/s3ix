@@ -7,11 +7,10 @@ OBJFILES := $(patsubst %.c, %.o, $(SRCFILES)) $(patsubst %.s, %.o, $(ASFILES))
 
 .PHONY: all clean
 
-all: $(OBJFILES) exocore.ko
+all: $(OBJFILES) kimage
 
-KOFILES := $(shell find . -type f -name "*.ko")
 clean:
-	-$(RM) $(wildcard $(OBJFILES) $(KOFILES))
+	-$(RM) $(wildcard $(OBJFILES)) kimage
 
 %.c:
 	$(CC) $(CFLAGS) -MMD -MP -c $< -o $@
@@ -19,7 +18,7 @@ clean:
 %.s:
 	$(AS) $(ASFLAGS) $< -o $@
 
-exocore.ko:
-	$(LD) $(LDFLAGS) $(OBJFILES) -o exocore.ko
+kimage:
+	$(LD) $(LDFLAGS) $(OBJFILES) -o kimage
 
 %.o: %.c %.s Makefile
