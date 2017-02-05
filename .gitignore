@@ -1,7 +1,8 @@
+*.sel.lua
+*.lob
 *~
+*#*
 *.swp
-*#
-#*
 *.o
 *.ko
 kimage

@@ -1,0 +1,87 @@
+local source_files = {...} -- Source files we are lobstering
+local code_stash   = {}
+local globals      = {}
+local out_lob = ''
+
+-- Really simple serializer:
+function serialize(t, ignore_strings)
+   ignore_strings = ignore_strings or false
+	function _serialize(t)
+		local s = ''
+		for k,v in pairs(t) do
+			if type(v) ~= 'function' then
+				if type(k) == 'number' then s = s .. "[" .. k .. "]="
+				else s = s .. "['" .. k .. "']=" end
+
+				if type(v) == 'table' then s = s .. serialize(v) .. ','
+				elseif type(v) == 'string' then
+				   if ignore_strings == false then
+				      s = s .. "'" .. v .. "',"
+				   else
+				      s = s .. v .. ','
+				   end
+				else s = s .. v .. ',' end
+			end
+		end
+		return s
+	end
+
+	local s = '{'
+	s = s .. _serialize(t) .. '}'
+	return s
+end
+
+local dest_file = table.remove(source_files)
+for _, file in ipairs(source_files) do
+   local fh, err = io.open(file, 'rb')
+   if err then
+      print("Can't open file '" .. file .. "': " .. err)
+      os.exit(false)
+   end
+   local contents, err = fh:read('*a')
+   if err then
+      print("Can't read from file '" .. file .. "': " .. err)
+      os.exit(false)
+   end
+   table.insert(code_stash, '[==[ ' .. contents .. ' ]==]')
+   --[[
+   local chunk, err = load(contents, file, nil, {})
+   if not chunk then print("Error lobstering '" .. file .. "': " .. err) else chunk() end
+   io.close(fh)
+   --]]
+end
+
+for k, v in pairs(globals) do
+   --print(k .. ':' .. v)
+end
+
+out_lob = out_lob .. 'local lob_objs='    .. serialize(code_stash, true) .. ' '
+
+-- Footer:
+out_lob = out_lob .. [==[
+local a=_ENV;for b,c in ipairs(lob_objs)do load(c,'_',nil,a)()end;if a['_start']~=nil then a['_start'](...)else return a end
+]==]
+
+-- print(out_lob)
+
+--[[
+local my_env = {}
+for k, v in ipairs(lob_objs) do
+   load(v, '_', nil, my_env)()
+end
+if my_env['_start'] ~= nil then
+   -- Execute like a process:
+   my_env['_start'](...)
+else
+   -- Return a table of globals:
+   return my_env
+end
+--]]
+
+local out_fh, err = io.open(dest_file, 'w')
+if err then
+   print("Can't open '" .. dest_file .. "' for writing: " .. err)
+   os.exit(false)
+end
+out_fh:write(out_lob)
+io.close(out_fh)

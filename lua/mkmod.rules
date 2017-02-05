@@ -1,0 +1,31 @@
+
+SELFILES    := $(shell find . -type f -name "*.sel")
+LUASELFILES := $(patsubst %.sel, %.sel.lua, $(SELFILES))
+LUAFILES    := $(shell find . -type f -name "*.lua")
+MINFILES    := $(patsubst %.lua, %_min, $(LUAFILES))
+
+SELENEC  := ../../tools/selenec
+LOB      := ../../tools/lob
+
+.PHONY: all clean
+
+all: $(LUASELFILES) $(MINFILES) lobster
+
+%.sel.lua: %.sel
+	$(LUA) $(SELENEC) $< $@
+
+lobster:
+	$(LUA) $(LOB) $(LUASELFILES) $(LUAFILES) kmod.lob
+
+clean:
+	-@$(RM) -v $(wildcard $(LUASELFILES)) kmod.lob
+
+%_min: %.lua
+ifdef LUAMIN
+	@$(LUAMIN) -f $< > $@
+	@mv $@ $<
+	@echo "minified $<"
+
+else
+	@echo WARNING: No luamin binary to create $@. skipping minification for $<
+endif

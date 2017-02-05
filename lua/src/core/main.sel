@@ -1,0 +1,13 @@
+function _start()
+   _ENV['selene'] = selene_init()
+   selene.load()
+
+   local mon = component.proxy(component.list('screen')())
+   local gpu = component.proxy(component.list('gpu')())
+   gpu.bind(mon.address)
+   gpu.set(1, 1, "Testing")
+   
+   while true do
+      coroutine.yield()
+   end
+end
